@@ -1,14 +1,15 @@
 package info
 
 import (
-	"gopkg.in/mgo.v2/bson"
 	"time"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // 配置, 每一个配置一行记录
 type Config struct {
-	ConfigId    bson.ObjectId       `bson:"_id"`
-	UserId      bson.ObjectId       `UserId`
+	ConfigId    primitive.ObjectID  `bson:"_id"`
+	UserId      primitive.ObjectID  `UserId`
 	Key         string              `Key`
 	ValueStr    string              `ValueStr,omitempty`    // "1"
 	ValueArr    []string            `ValueArr,omitempty`    // ["1","b","c"]

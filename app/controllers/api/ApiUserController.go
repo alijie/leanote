@@ -3,16 +3,17 @@ package api
 import (
 	"github.com/revel/revel"
 	//	"encoding/json"
-	"github.com/leanote/leanote/app/info"
-	. "github.com/leanote/leanote/app/lea"
-	"gopkg.in/mgo.v2/bson"
+	"leanote/app/info"
+	. "leanote/app/lea"
 	"time"
-	//	"github.com/leanote/leanote/app/types"
+
+	"go.mongodb.org/mongo-driver/bson"
+
+	//	"leanote/app/types"
 	"io/ioutil"
 	//	"fmt"
 	//	"math"
 	"os"
-
 	//	"path"
 	//	"strconv"
 )
@@ -27,7 +28,7 @@ func (c ApiUser) Info() revel.Result {
 	re := info.NewApiRe()
 
 	userInfo := c.getUserInfo()
-	if userInfo.UserId == "" {
+	if userInfo.UserId.IsZero() {
 		return c.RenderJSON(re)
 	}
 	apiUser := info.ApiUser{

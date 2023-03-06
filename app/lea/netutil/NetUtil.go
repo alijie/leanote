@@ -3,9 +3,10 @@ package netutil
 import (
 	"os"
 	"strings"
+
 	//	"path/filepath"
-	. "github.com/leanote/leanote/app/lea"
 	"io/ioutil"
+	. "leanote/app/lea"
 	"net"
 	"net/http"
 )

@@ -3,16 +3,19 @@ package service
 import (
 	"encoding/base64"
 	"fmt"
-	"github.com/leanote/leanote/app/db"
-	"github.com/leanote/leanote/app/info"
-	. "github.com/leanote/leanote/app/lea"
-	"github.com/revel/revel"
-	"gopkg.in/mgo.v2/bson"
 	"io/ioutil"
+	"leanote/app/db"
+	"leanote/app/info"
+	. "leanote/app/lea"
 	"net/http"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/revel/revel"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 const DEFAULT_ALBUM_ID = "52d3e8ac99c37b7f0d000001"
@@ -24,12 +27,12 @@ type FileService struct {
 func (this *FileService) AddImage(image info.File, albumId, userId string, needCheckSize bool) (ok bool, msg string) {
 	image.CreatedTime = time.Now()
 	if albumId != "" {
-		image.AlbumId = bson.ObjectIdHex(albumId)
+		image.AlbumId = db.ObjectIDFromHex(albumId)
 	} else {
-		image.AlbumId = bson.ObjectIdHex(DEFAULT_ALBUM_ID)
+		image.AlbumId = db.ObjectIDFromHex(DEFAULT_ALBUM_ID)
 		image.IsDefaultAlbum = true
 	}
-	image.UserId = bson.ObjectIdHex(userId)
+	image.UserId = db.ObjectIDFromHex(userId)
 
 	ok = db.Insert(db.Files, image)
 	return
@@ -38,29 +41,39 @@ func (this *FileService) AddImage(image info.File, albumId, userId string, needC
 // list images
 // if albumId == "" get default album images
 func (this *FileService) ListImagesWithPage(userId, albumId, key string, pageNumber, pageSize int) info.Page {
-	skipNum, sortFieldR := parsePageAndSort(pageNumber, pageSize, "CreatedTime", false)
+	sortField := "CreatedTime"
+	skipNum, sort := parsePageAndSort(pageNumber, pageSize, false)
 	files := []info.File{}
 
-	q := bson.M{"UserId": bson.ObjectIdHex(userId), "Type": ""} // life
+	q := bson.M{"UserId": db.ObjectIDFromHex(userId), "Type": ""} // life
 	if albumId != "" {
-		q["AlbumId"] = bson.ObjectIdHex(albumId)
+		q["AlbumId"] = db.ObjectIDFromHex(albumId)
 	} else {
 		q["IsDefaultAlbum"] = true
 	}
 	if key != "" {
-		q["Title"] = bson.M{"$regex": bson.RegEx{".*?" + key + ".*", "i"}}
+		q["Title"] = bson.M{"$regex": primitive.Regex{".*?" + key + ".*", "i"}}
 	}
 
 	//	LogJ(q)
 
 	count := db.Count(db.Files, q)
 
-	db.Files.
-		Find(q).
-		Sort(sortFieldR).
-		Skip(skipNum).
-		Limit(pageSize).
-		All(&files)
+	pipeline := mongo.Pipeline{
+		{
+			{"$match", q},
+		},
+		{
+			{"$sort", bson.D{{sortField, sort}}},
+		},
+		{
+			{"$skip", skipNum},
+		},
+		{
+			{"$limit", pageSize},
+		},
+	}
+	db.AggregateQuery(db.Files, pipeline, &files)
 
 	return info.Page{Count: count, List: files}
 }
@@ -72,7 +85,7 @@ func (this *FileService) UpdateImageTitle(userId, fileId, title string) bool {
 // get all images names
 // for upgrade
 func (this *FileService) GetAllImageNamesMap(userId string) (m map[string]bool) {
-	q := bson.M{"UserId": bson.ObjectIdHex(userId)}
+	q := bson.M{"UserId": db.ObjectIDFromHex(userId)}
 	files := []info.File{}
 	db.ListByQWithFields(db.Files, q, []string{"Name"}, &files)
 
@@ -92,7 +105,7 @@ func (this *FileService) DeleteImage(userId, fileId string) (bool, string) {
 	file := info.File{}
 	db.GetByIdAndUserId(db.Files, fileId, userId, &file)
 
-	if file.FileId != "" {
+	if !file.FileId.IsZero() {
 		if db.DeleteByIdAndUserId(db.Files, fileId, userId) {
 			// delete image
 			// TODO
@@ -209,7 +222,7 @@ func (this *FileService) GetFile(userId, fileId string) string {
 		/*
 			// 若有共享给我的笔记?
 			// 对该笔记可读?
-			if db.Has(db.ShareNotes, bson.M{"ToUserId": bson.ObjectIdHex(userId), "NoteId": bson.M{"$in": noteIds}}) {
+			if db.Has(db.ShareNotes, bson.M{"ToUserId": db.ObjectIDFromHex(userId), "NoteId": bson.M{"$in": noteIds}}) {
 				return path
 			}
 
@@ -218,12 +231,12 @@ func (this *FileService) GetFile(userId, fileId string) string {
 			notes := []info.Note{}
 			db.ListByQWithFields(db.Notes, bson.M{"_id": bson.M{"$in": noteIds}}, []string{"NotebookId"}, &notes)
 			if notes != nil && len(notes) > 0 {
-				notebookIds := make([]bson.ObjectId, len(notes))
+				notebookIds := make([]primitive.ObjectID, len(notes))
 				for i := 0; i < len(notes); i++ {
 					notebookIds[i] = notes[i].NotebookId
 				}
 
-				if db.Has(db.ShareNotebooks, bson.M{"ToUserId": bson.ObjectIdHex(userId), "NotebookId": bson.M{"$in": notebookIds}}) {
+				if db.Has(db.ShareNotebooks, bson.M{"ToUserId": db.ObjectIDFromHex(userId), "NotebookId": bson.M{"$in": notebookIds}}) {
 					return path
 				}
 			}
@@ -231,9 +244,9 @@ func (this *FileService) GetFile(userId, fileId string) string {
 	}
 
 	// 可能是刚复制到owner上, 但内容又没有保存, 所以没有note->imageId的映射, 此时看是否有fromFileId
-	if file.FromFileId != "" {
+	if file.FromFileId.IsZero() {
 		fromFile := info.File{}
-		db.Get2(db.Files, file.FromFileId, &fromFile)
+		db.Get2(db.Files, file.FromFileId.Hex(), &fromFile)
 		if fromFile.UserId.Hex() == userId {
 			return fromFile.Path
 		}
@@ -247,8 +260,8 @@ func (this *FileService) GetFile(userId, fileId string) string {
 func (this *FileService) CopyImage(userId, fileId, toUserId string) (bool, string) {
 	// 是否已经复制过了
 	file2 := info.File{}
-	db.GetByQ(db.Files, bson.M{"UserId": bson.ObjectIdHex(toUserId), "FromFileId": bson.ObjectIdHex(fileId)}, &file2)
-	if file2.FileId != "" {
+	db.GetByQ(db.Files, bson.M{"UserId": db.ObjectIDFromHex(toUserId), "FromFileId": db.ObjectIDFromHex(fileId)}, &file2)
+	if !file2.FileId.IsZero() {
 		return true, file2.FileId.Hex()
 	}
 
@@ -256,7 +269,7 @@ func (this *FileService) CopyImage(userId, fileId, toUserId string) (bool, strin
 	file := info.File{}
 	db.GetByIdAndUserId(db.Files, fileId, userId, &file)
 
-	if file.FileId == "" || file.UserId.Hex() != userId {
+	if file.FileId.IsZero() || file.UserId.Hex() != userId {
 		return false, ""
 	}
 
@@ -283,7 +296,7 @@ func (this *FileService) CopyImage(userId, fileId, toUserId string) (bool, strin
 		Path:       filePath,
 		Size:       file.Size,
 		FromFileId: file.FileId}
-	id := bson.NewObjectId()
+	id := primitive.NewObjectID()
 	fileInfo.FileId = id
 	fileId = id.Hex()
 	Ok, _ := this.AddImage(fileInfo, "", toUserId, false)
@@ -297,8 +310,8 @@ func (this *FileService) CopyImage(userId, fileId, toUserId string) (bool, strin
 // 是否是我的文件
 func (this *FileService) IsMyFile(userId, fileId string) bool {
 	// 如果有问题会panic
-	if !bson.IsObjectIdHex(fileId) || !bson.IsObjectIdHex(userId) {
+	if !primitive.IsValidObjectID(fileId) || !primitive.IsValidObjectID(userId) {
 		return false
 	}
-	return db.Has(db.Files, bson.M{"UserId": bson.ObjectIdHex(userId), "_id": bson.ObjectIdHex(fileId)})
+	return db.Has(db.Files, bson.M{"UserId": db.ObjectIDFromHex(userId), "_id": db.ObjectIDFromHex(fileId)})
 }

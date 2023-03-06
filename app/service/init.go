@@ -1,14 +1,16 @@
 package service
 
 import (
-	"github.com/leanote/leanote/app/db"
-	. "github.com/leanote/leanote/app/lea"
-	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
+	"leanote/app/db"
+	. "leanote/app/lea"
 	"net/url"
 	"regexp"
 	"strconv"
 	"strings"
+
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 // init service, for share service bettween services
@@ -133,9 +135,9 @@ func getUniqueUrlTitle(userId string, urlTitle string, types string, padding int
 	if padding > 1 {
 		urlTitle2 = urlTitle + "-" + strconv.Itoa(padding)
 	}
-	userIdO := bson.ObjectIdHex(userId)
+	userIdO := db.ObjectIDFromHex(userId)
 
-	var collection *mgo.Collection
+	var collection *mongo.Collection
 	if types == "note" {
 		collection = db.Notes
 	} else if types == "notebook" {
@@ -169,7 +171,7 @@ func GetUrTitle(userId string, title string, types string, id string) string {
 			urlTitle = subIdHalf(id)
 		}
 		// 不允许title是ObjectId
-	} else if bson.IsObjectIdHex(title) {
+	} else if primitive.IsValidObjectID(title) {
 		urlTitle = subIdHalf(id)
 	}
 

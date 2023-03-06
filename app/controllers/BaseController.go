@@ -2,11 +2,15 @@ package controllers
 
 import (
 	"encoding/json"
-	"github.com/leanote/leanote/app/info"
-	"github.com/leanote/leanote/app/lea/i18n"
+
+	"leanote/app/db"
+	"leanote/app/info"
+	"leanote/app/lea/i18n"
+
 	"github.com/revel/revel"
-	"gopkg.in/mgo.v2/bson"
-	//	. "github.com/leanote/leanote/app/lea"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+
+	//	. "leanote/app/lea"
 	//	"io/ioutil"
 	//	"fmt"
 	"bytes"
@@ -37,12 +41,12 @@ func (c BaseController) HasLogined() bool {
 	return c.GetUserId() != ""
 }
 
-func (c BaseController) GetObjectUserId() bson.ObjectId {
+func (c BaseController) GetObjectUserId() primitive.ObjectID {
 	userId := c.GetUserId()
 	if userId != "" {
-		return bson.ObjectIdHex(userId)
+		return db.ObjectIDFromHex(userId)
 	}
-	return ""
+	return primitive.NilObjectID
 }
 
 func (c BaseController) GetEmail() string {
@@ -61,7 +65,7 @@ func (c BaseController) GetUsername() string {
 
 // 得到用户信息
 func (c BaseController) GetUserInfo() info.User {
-    userId := c.GetUserId()
+	userId := c.GetUserId()
 	if userId != "" {
 		return userService.GetUserInfo(userId)
 	}
@@ -69,7 +73,7 @@ func (c BaseController) GetUserInfo() info.User {
 }
 
 func (c BaseController) GetUserAndBlogUrl() info.UserAndBlogUrl {
-    userId := c.GetUserId()
+	userId := c.GetUserId()
 	if userId != "" {
 		return userService.GetUserAndBlogUrl(userId)
 	}
@@ -85,7 +89,7 @@ func (c BaseController) GetSession(key string) string {
 	return v.(string)
 }
 func (c BaseController) SetSession(userInfo info.User) {
-	if userInfo.UserId.Hex() != "" {
+	if !userInfo.UserId.IsZero() {
 		c.Session["UserId"] = userInfo.UserId.Hex()
 		c.Session["Email"] = userInfo.Email
 		c.Session["Username"] = userInfo.Username
@@ -157,7 +161,7 @@ func (c BaseController) GetTotalPage(page, count int) int {
 	return int(math.Ceil(float64(count) / float64(page)))
 }
 
-//-------------
+// -------------
 func (c BaseController) E404() revel.Result {
 	c.ViewArgs["title"] = "404"
 	return c.NotFound("", nil)
@@ -208,7 +212,7 @@ func (c BaseController) RenderTemplateStr(templatePath string) string {
 	}
 
 	tpl := &revel.RenderTemplateResult{
-		Template:   template,
+		Template: template,
 		ViewArgs: c.ViewArgs, // 把args给它
 	}
 

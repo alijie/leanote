@@ -1,13 +1,14 @@
 package info
 
 import (
-	"gopkg.in/mgo.v2/bson"
 	"time"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // http://docs.mongodb.org/manual/tutorial/expire-data/
 type Session struct {
-	Id bson.ObjectId `bson:"_id,omitempty"` // 没有意义
+	Id primitive.ObjectID `bson:"_id,omitempty"` // 没有意义
 
 	SessionId string `bson:"SessionId"` // SessionId
 

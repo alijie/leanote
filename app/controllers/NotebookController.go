@@ -2,10 +2,12 @@ package controllers
 
 import (
 	"encoding/json"
-	"github.com/leanote/leanote/app/info"
+
+	"leanote/app/db"
+	"leanote/app/info"
+
 	"github.com/revel/revel"
-	"gopkg.in/mgo.v2/bson"
-	//	. "github.com/leanote/leanote/app/lea"
+	//	. "leanote/app/lea"
 	//	"io/ioutil"
 )
 
@@ -30,12 +32,12 @@ func (c Notebook) DeleteNotebook(notebookId string) revel.Result {
 
 // 添加notebook
 func (c Notebook) AddNotebook(notebookId, title, parentNotebookId string) revel.Result {
-	notebook := info.Notebook{NotebookId: bson.ObjectIdHex(notebookId),
+	notebook := info.Notebook{NotebookId: db.ObjectIDFromHex(notebookId),
 		Title:  title,
 		Seq:    -1,
 		UserId: c.GetObjectUserId()}
 	if parentNotebookId != "" {
-		notebook.ParentNotebookId = bson.ObjectIdHex(parentNotebookId)
+		notebook.ParentNotebookId = db.ObjectIDFromHex(parentNotebookId)
 	}
 
 	re, notebook := notebookService.AddNotebook(notebook)

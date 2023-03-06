@@ -2,9 +2,9 @@ package admin
 
 import (
 	"github.com/revel/revel"
-	//	. "github.com/leanote/leanote/app/lea"
+	//	. "leanote/app/lea"
 	"fmt"
-	"github.com/leanote/leanote/app/info"
+	"leanote/app/info"
 	"strings"
 )
 
@@ -61,7 +61,7 @@ func (c AdminSetting) DoDemo(demoUsername, demoPassword string) revel.Result {
 		fmt.Println(err)
 		return c.RenderJSON(info.Re{Ok: false})
 	}
-	if userInfo.UserId == "" {
+	if userInfo.UserId.IsZero() {
 		re.Msg = "The User is Not Exists"
 		return c.RenderJSON(re)
 	}

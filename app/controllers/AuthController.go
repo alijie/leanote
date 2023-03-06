@@ -1,10 +1,12 @@
 package controllers
 
 import (
-	"github.com/leanote/leanote/app/info"
-	. "github.com/leanote/leanote/app/lea"
-	"github.com/revel/revel"
 	"strings"
+
+	"leanote/app/info"
+	. "leanote/app/lea"
+
+	"github.com/revel/revel"
 	//	"strconv"
 )
 
@@ -14,7 +16,7 @@ type Auth struct {
 	BaseController
 }
 
-//--------
+// --------
 // 登录
 func (c Auth) Login(email, from string) revel.Result {
 	c.ViewArgs["title"] = c.Message("login")
@@ -100,7 +102,7 @@ func (c Auth) Demo() revel.Result {
 	return nil
 }
 
-//--------
+// --------
 // 注册
 func (c Auth) Register(from, iu string) revel.Result {
 	if !configService.IsOpenRegister() {
@@ -141,7 +143,7 @@ func (c Auth) DoRegister(email, pwd, iu string) revel.Result {
 	return c.RenderRe(re)
 }
 
-//--------
+// --------
 // 找回密码
 func (c Auth) FindPassword() revel.Result {
 	c.SetLocale()

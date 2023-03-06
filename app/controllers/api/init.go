@@ -1,11 +1,13 @@
 package api
 
 import (
-	"github.com/leanote/leanote/app/info"
-	"github.com/leanote/leanote/app/service"
-	//		. "github.com/leanote/leanote/app/lea"
-	"github.com/revel/revel"
+	"leanote/app/info"
+	"leanote/app/service"
+
+	//		. "leanote/app/lea"
 	"strings"
+
+	"github.com/revel/revel"
 )
 
 var userService *service.UserService
@@ -91,9 +93,9 @@ func AuthInterceptor(c *revel.Controller) revel.Result {
 		// 从session中获取, api/file/getImage, api/file/getAttach, api/file/getAllAttach
 		// 客户端
 		userIdI, _ := c.Session["UserId"]
-        if userIdI != nil {
-            userId = userIdI.(string)
-        }
+		if userIdI != nil {
+			userId = userIdI.(string)
+		}
 	}
 	c.Session["_userId"] = userId
 

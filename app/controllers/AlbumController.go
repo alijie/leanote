@@ -2,10 +2,10 @@ package controllers
 
 import (
 	"github.com/revel/revel"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	//	"encoding/json"
-	"github.com/leanote/leanote/app/info"
-	"gopkg.in/mgo.v2/bson"
-	//	. "github.com/leanote/leanote/app/lea"
+	"leanote/app/info"
+	//	. "leanote/app/lea"
 	//	"io/ioutil"
 )
 
@@ -33,7 +33,7 @@ func (c Album) DeleteAlbum(albumId string) revel.Result {
 // add album
 func (c Album) AddAlbum(name string) revel.Result {
 	album := info.Album{
-		AlbumId: bson.NewObjectId(),
+		AlbumId: primitive.NewObjectID(),
 		Name:    name,
 		Seq:     -1,
 		UserId:  c.GetObjectUserId()}

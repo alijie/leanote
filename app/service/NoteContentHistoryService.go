@@ -1,10 +1,9 @@
 package service
 
 import (
-	"github.com/leanote/leanote/app/db"
-	"github.com/leanote/leanote/app/info"
-	//	. "github.com/leanote/leanote/app/lea"
-	"gopkg.in/mgo.v2/bson"
+	"leanote/app/db"
+	"leanote/app/info"
+	//	. "leanote/app/lea"
 	//	"time"
 )
 
@@ -26,7 +25,7 @@ func (this *NoteContentHistoryService) AddHistory(noteId, userId string, eachHis
 	// 先查是否存在历史记录, 没有则添加之
 	history := info.NoteContentHistory{}
 	db.GetByIdAndUserId(db.NoteContentHistories, noteId, userId, &history)
-	if history.NoteId == "" {
+	if history.NoteId.IsZero() {
 		this.newHistory(noteId, userId, eachHistory)
 	} else {
 		// 判断是否超出 maxSize, 如果超出则pop最后一个, 再push之, 不用那么麻烦, 直接update吧, 虽然影响性能
@@ -48,8 +47,8 @@ func (this *NoteContentHistoryService) AddHistory(noteId, userId string, eachHis
 
 // 新建历史
 func (this *NoteContentHistoryService) newHistory(noteId, userId string, eachHistory info.EachHistory) {
-	history := info.NoteContentHistory{NoteId: bson.ObjectIdHex(noteId),
-		UserId:    bson.ObjectIdHex(userId),
+	history := info.NoteContentHistory{NoteId: db.ObjectIDFromHex(noteId),
+		UserId:    db.ObjectIDFromHex(userId),
 		Histories: []info.EachHistory{eachHistory},
 	}
 

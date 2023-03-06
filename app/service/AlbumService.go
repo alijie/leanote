@@ -1,11 +1,13 @@
 package service
 
 import (
-	"github.com/leanote/leanote/app/info"
-	//	. "github.com/leanote/leanote/app/lea"
-	"github.com/leanote/leanote/app/db"
-	"gopkg.in/mgo.v2/bson"
+	"leanote/app/info"
+	//	. "leanote/app/lea"
 	"time"
+
+	"leanote/app/db"
+
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 const IMAGE_TYPE = 0
@@ -23,15 +25,15 @@ func (this *AlbumService) AddAlbum(album info.Album) bool {
 // get albums
 func (this *AlbumService) GetAlbums(userId string) []info.Album {
 	albums := []info.Album{}
-	db.ListByQ(db.Albums, bson.M{"UserId": bson.ObjectIdHex(userId)}, &albums)
+	db.ListByQ(db.Albums, bson.M{"UserId": db.ObjectIDFromHex(userId)}, &albums)
 	return albums
 }
 
 // delete album
 // presupposition: has no images under this ablum
 func (this *AlbumService) DeleteAlbum(userId, albumId string) (bool, string) {
-	if db.Count(db.Files, bson.M{"AlbumId": bson.ObjectIdHex(albumId),
-		"UserId": bson.ObjectIdHex(userId),
+	if db.Count(db.Files, bson.M{"AlbumId": db.ObjectIDFromHex(albumId),
+		"UserId": db.ObjectIDFromHex(userId),
 	}) == 0 {
 		return db.DeleteByIdAndUserId(db.Albums, albumId, userId), ""
 	}

@@ -14,9 +14,9 @@
     "gulp-inject": "",
     "gulp-sequence": ""
   },
-  "author": "life(http://life.leanote.com)",
+  "author": "life(http://lijie.life)",
   "license": "GPL v2",
   "bugs": {
-    "url": "https://github.com/leanote/leanote/issues"
+    "url": "http://leanote.lijie.life/leanote"
   }
 }

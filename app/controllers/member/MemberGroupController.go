@@ -1,7 +1,8 @@
 package member
 
 import (
-	"github.com/leanote/leanote/app/info"
+	"leanote/app/info"
+
 	"github.com/revel/revel"
 )
 
@@ -42,7 +43,7 @@ func (c MemberGroup) DeleteGroup(groupId string) revel.Result {
 func (c MemberGroup) AddUser(groupId, email string) revel.Result {
 	re := info.NewRe()
 	userInfo := userService.GetUserInfoByAny(email)
-	if userInfo.UserId == "" {
+	if userInfo.UserId.IsZero() {
 		re.Msg = "userNotExists"
 	} else {
 		re.Ok, re.Msg = groupService.AddUser(c.GetUserId(), groupId, userInfo.UserId.Hex())

@@ -2,18 +2,21 @@ package controllers
 
 import (
 	"github.com/revel/revel"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+
 	//	"encoding/json"
 	"archive/tar"
 	"compress/gzip"
 	"fmt"
-	"github.com/leanote/leanote/app/info"
-	. "github.com/leanote/leanote/app/lea"
-	"gopkg.in/mgo.v2/bson"
 	"io"
 	"io/ioutil"
 	"os"
 	"strings"
 	"time"
+
+	"leanote/app/db"
+	"leanote/app/info"
+	. "leanote/app/lea"
 )
 
 // 附件
@@ -99,13 +102,13 @@ func (c Attach) uploadAttach(noteId string) (re info.Re) {
 	filesize := GetFilesize(toPath)
 	fileInfo = info.Attach{Name: filename,
 		Title:        handel.Filename,
-		NoteId:       bson.ObjectIdHex(noteId),
+		NoteId:       db.ObjectIDFromHex(noteId),
 		UploadUserId: c.GetObjectUserId(),
 		Path:         filePath + "/" + filename,
 		Type:         fileType,
 		Size:         filesize}
 
-	id := bson.NewObjectId()
+	id := primitive.NewObjectID()
 	fileInfo.AttachId = id
 	fileId = id.Hex()
 	Ok, resultMsg = attachService.AddAttach(fileInfo, false)
@@ -151,7 +154,7 @@ func (c Attach) Download(attachId string) revel.Result {
 
 func (c Attach) DownloadAll(noteId string) revel.Result {
 	note := noteService.GetNoteById(noteId)
-	if note.NoteId == "" {
+	if note.NoteId.IsZero() {
 		return c.RenderText("")
 	}
 	// 得到文件列表

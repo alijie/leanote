@@ -3,16 +3,19 @@ package controllers
 import (
 	"github.com/revel/revel"
 	//	"encoding/json"
-	"github.com/leanote/leanote/app/info"
-	. "github.com/leanote/leanote/app/lea"
-	"gopkg.in/mgo.v2/bson"
+	"leanote/app/db"
+	"leanote/app/info"
+	. "leanote/app/lea"
 	"os"
 	"os/exec"
 	"regexp"
+	"runtime"
 	"strings"
 	"time"
-	"runtime"
-	//	"github.com/leanote/leanote/app/types"
+
+	"go.mongodb.org/mongo-driver/bson"
+
+	//	"leanote/app/types"
 	//	"io/ioutil"
 	"fmt"
 	//	"bytes"
@@ -54,7 +57,7 @@ func (c Note) Index(noteId, online string) revel.Result {
 		if IsObjectId(noteId) {
 			note := noteService.GetNoteById(noteId)
 
-			if note.NoteId != "" {
+			if !note.NoteId.IsZero() {
 				var noteOwner = note.UserId.Hex()
 				noteContent = noteService.GetNoteContent(noteId, noteOwner)
 
@@ -181,14 +184,14 @@ func (c Note) UpdateNoteOrContent(noteOrContent info.NoteOrContent) revel.Result
 		//		myUserId := userId
 		// 为共享新建?
 		if noteOrContent.FromUserId != "" {
-			userId = bson.ObjectIdHex(noteOrContent.FromUserId)
+			userId = db.ObjectIDFromHex(noteOrContent.FromUserId)
 		}
 
 		note := info.Note{UserId: userId,
-			NoteId:     bson.ObjectIdHex(noteOrContent.NoteId),
-			NotebookId: bson.ObjectIdHex(noteOrContent.NotebookId),
+			NoteId:     db.ObjectIDFromHex(noteOrContent.NoteId),
+			NotebookId: db.ObjectIDFromHex(noteOrContent.NotebookId),
 			Title:      noteOrContent.Title,
-			Src: noteOrContent.Src, // 来源
+			Src:        noteOrContent.Src, // 来源
 			Tags:       strings.Split(noteOrContent.Tags, ","),
 			Desc:       noteOrContent.Desc,
 			ImgSrc:     noteOrContent.ImgSrc,
@@ -240,7 +243,7 @@ func (c Note) UpdateNoteOrContent(noteOrContent info.NoteOrContent) revel.Result
 	if c.Has("Content") {
 		//		noteService.UpdateNoteContent(noteOrContent.UserId, c.GetUserId(),
 		//			noteOrContent.NoteId, noteOrContent.Content, noteOrContent.Abstract)
-		// contentOk, contentMsg, afterContentUsn = 
+		// contentOk, contentMsg, afterContentUsn =
 		noteService.UpdateNoteContent(c.GetUserId(),
 			noteOrContent.NoteId, noteOrContent.Content, noteOrContent.Abstract,
 			needUpdateNote, -1, time.Now())
@@ -310,7 +313,7 @@ func (c Note) CopySharedNote(noteIds []string, notebookId, fromUserId string) re
 	return c.RenderJSON(re)
 }
 
-//------------
+// ------------
 // search
 // 通过title搜索
 func (c Note) SearchNote(key string) revel.Result {
@@ -332,7 +335,7 @@ func (c Note) ToPdf(noteId, appKey string) revel.Result {
 		return c.RenderText("auth error")
 	}
 	note := noteService.GetNoteById(noteId)
-	if note.NoteId == "" {
+	if note.NoteId.IsZero() {
 		return c.RenderText("no note")
 	}
 
@@ -413,7 +416,7 @@ func (c Note) ExportPdf(noteId string) revel.Result {
 	re := info.NewRe()
 	userId := c.GetUserId()
 	note := noteService.GetNoteById(noteId)
-	if note.NoteId == "" {
+	if note.NoteId.IsZero() {
 		re.Msg = "No Note"
 		return c.RenderText("error")
 	}

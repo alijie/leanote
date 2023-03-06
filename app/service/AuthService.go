@@ -1,13 +1,17 @@
 package service
 
 import (
-	"gopkg.in/mgo.v2/bson"
-	//	"github.com/leanote/leanote/app/db"
-	"github.com/leanote/leanote/app/info"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+
+	//	"leanote/app/db"
+	"leanote/app/db"
+	"leanote/app/info"
+
 	//	"github.com/revel/revel"
 	"errors"
 	"fmt"
-	. "github.com/leanote/leanote/app/lea"
+	. "leanote/app/lea"
 	"strconv"
 	"strings"
 )
@@ -23,7 +27,7 @@ func (this *AuthService) Login(emailOrUsername, pwd string) (info.User, error) {
 	emailOrUsername = strings.Trim(emailOrUsername, " ")
 	//	pwd = strings.Trim(pwd, " ")
 	userInfo := userService.GetUserInfoByName(emailOrUsername)
-	if userInfo.UserId == "" || !ComparePwd(pwd, userInfo.Pwd) {
+	if userInfo.UserId.IsZero() || !ComparePwd(pwd, userInfo.Pwd) {
 		return userInfo, errors.New("wrong username or password")
 	}
 	return userInfo, nil
@@ -49,9 +53,9 @@ func (this *AuthService) Register(email, pwd, fromUserId string) (bool, string) 
 	if passwd == "" {
 		return false, "GenerateHash error"
 	}
-	user := info.User{UserId: bson.NewObjectId(), Email: email, Username: email, Pwd: passwd}
+	user := info.User{UserId: primitive.NewObjectID(), Email: email, Username: email, Pwd: passwd}
 	if fromUserId != "" && IsObjectId(fromUserId) {
-		user.FromUserId = bson.ObjectIdHex(fromUserId)
+		user.FromUserId = db.ObjectIDFromHex(fromUserId)
 	}
 	return this.register(user)
 }
@@ -63,7 +67,7 @@ func (this *AuthService) register(user info.User) (bool, string) {
 		notebook := info.Notebook{
 			Seq:    -1,
 			UserId: user.UserId}
-		title2Id := map[string]bson.ObjectId{"life": bson.NewObjectId(), "study": bson.NewObjectId(), "work": bson.NewObjectId()}
+		title2Id := map[string]primitive.ObjectID{"life": primitive.NewObjectID(), "study": primitive.NewObjectID(), "work": primitive.NewObjectID()}
 		for title, objectId := range title2Id {
 			notebook.Title = title
 			notebook.NotebookId = objectId
@@ -133,13 +137,13 @@ func (this *AuthService) getUsername(thirdType, thirdUsername string) (username 
 
 func (this *AuthService) ThirdRegister(thirdType, thirdUserId, thirdUsername string) (exists bool, userInfo info.User) {
 	userInfo = userService.GetUserInfoByThirdUserId(thirdUserId)
-	if userInfo.UserId != "" {
+	if !userInfo.UserId.IsZero() {
 		exists = true
 		return
 	}
 
 	username := this.getUsername(thirdType, thirdUsername)
-	userInfo = info.User{UserId: bson.NewObjectId(),
+	userInfo = info.User{UserId: primitive.NewObjectID(),
 		Username:      username,
 		ThirdUserId:   thirdUserId,
 		ThirdUsername: thirdUsername,

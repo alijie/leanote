@@ -1,10 +1,11 @@
 package service
 
 import (
-	"github.com/leanote/leanote/app/db"
-	"github.com/leanote/leanote/app/info"
-	. "github.com/leanote/leanote/app/lea"
-	"gopkg.in/mgo.v2/bson"
+	"leanote/app/db"
+	"leanote/app/info"
+	. "leanote/app/lea"
+
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 // 找回密码

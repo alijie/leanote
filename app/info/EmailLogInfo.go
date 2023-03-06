@@ -1,13 +1,14 @@
 package info
 
 import (
-	"gopkg.in/mgo.v2/bson"
 	"time"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // 发送邮件
 type EmailLog struct {
-	LogId bson.ObjectId `bson:"_id"`
+	LogId primitive.ObjectID `bson:"_id"`
 
 	Email   string `Email`   // 发送者
 	Subject string `Subject` // 主题

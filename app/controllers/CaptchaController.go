@@ -3,18 +3,19 @@ package controllers
 import (
 	"github.com/revel/revel"
 	//	"encoding/json"
-	//	"gopkg.in/mgo.v2/bson"
-	. "github.com/leanote/leanote/app/lea"
-	"github.com/leanote/leanote/app/lea/captcha"
-	//	"github.com/leanote/leanote/app/types"
+	//	"go.mongodb.org/mongo-driver/bson"
+	. "leanote/app/lea"
+	"leanote/app/lea/captcha"
+
+	//	"leanote/app/types"
 	//	"io/ioutil"
 	//	"fmt"
 	//	"math"
 	//	"os"
 	//	"path"
 	//	"strconv"
-	"net/http"
 	"io"
+	"net/http"
 )
 
 // 验证码服务

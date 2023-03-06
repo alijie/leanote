@@ -1,9 +1,10 @@
 package controllers
 
 import (
-	"github.com/leanote/leanote/app/info"
+	"leanote/app/info"
+
 	"github.com/revel/revel"
-	//	. "github.com/leanote/leanote/app/lea"
+	//	. "leanote/app/lea"
 )
 
 // 首页

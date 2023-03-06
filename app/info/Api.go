@@ -1,13 +1,14 @@
 package info
 
 import (
-	"gopkg.in/mgo.v2/bson"
 	"time"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-//---------
+// ---------
 // 数据结构
-//---------
+// ---------
 type NoteFile struct {
 	FileId      string // 服务器端Id
 	LocalFileId string // 客户端Id
@@ -40,8 +41,8 @@ type ApiNote struct {
 
 // 内容
 type ApiNoteContent struct {
-	NoteId bson.ObjectId `bson:"_id,omitempty"`
-	UserId bson.ObjectId `bson:"UserId"`
+	NoteId primitive.ObjectID `bson:"_id,omitempty"`
+	UserId primitive.ObjectID `bson:"UserId"`
 
 	Content string `Content`
 
@@ -67,21 +68,21 @@ type ApiUser struct {
 	Logo     string
 }
 
-//----------
+// ----------
 // Notebook
-//----------
+// ----------
 type ApiNotebook struct {
-	NotebookId       bson.ObjectId `bson:"_id,omitempty"` // 必须要设置bson:"_id" 不然mgo不会认为是主键
-	UserId           bson.ObjectId `bson:"UserId"`
-	ParentNotebookId bson.ObjectId `bson:"ParentNotebookId,omitempty"` // 上级
-	Seq              int           `Seq`                               // 排序
-	Title            string        `Title`                             // 标题
-	UrlTitle         string        `UrlTitle`                          // Url标题 2014/11.11加
-	IsBlog           bool          `IsBlog,omitempty`                  // 是否是Blog 2013/12/29 新加
-	CreatedTime      time.Time     `CreatedTime,omitempty`
-	UpdatedTime      time.Time     `UpdatedTime,omitempty`
-	Usn              int           `Usn` // UpdateSequenceNum
-	IsDeleted        bool          `IsDeleted`
+	NotebookId       primitive.ObjectID `bson:"_id,omitempty"` // 必须要设置bson:"_id" 不然mgo不会认为是主键
+	UserId           primitive.ObjectID `bson:"UserId"`
+	ParentNotebookId primitive.ObjectID `bson:"ParentNotebookId,omitempty"` // 上级
+	Seq              int                `Seq`                               // 排序
+	Title            string             `Title`                             // 标题
+	UrlTitle         string             `UrlTitle`                          // Url标题 2014/11.11加
+	IsBlog           bool               `IsBlog,omitempty`                  // 是否是Blog 2013/12/29 新加
+	CreatedTime      time.Time          `CreatedTime,omitempty`
+	UpdatedTime      time.Time          `UpdatedTime,omitempty`
+	Usn              int                `Usn` // UpdateSequenceNum
+	IsDeleted        bool               `IsDeleted`
 }
 
 //---------
@@ -102,7 +103,7 @@ func NewApiRe() ApiRe {
 type AuthOk struct {
 	Ok       bool
 	Token    string
-	UserId   bson.ObjectId
+	UserId   primitive.ObjectID
 	Email    string
 	Username string
 }

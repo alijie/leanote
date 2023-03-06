@@ -1,8 +1,9 @@
 package info
 
 import (
-	"gopkg.in/mgo.v2/bson"
 	"time"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // 随机token
@@ -24,9 +25,9 @@ const (
 )
 
 type Token struct {
-	UserId      bson.ObjectId `bson:"_id"`
-	Email       string        `Email`
-	Token       string        `Token`
-	Type        int           `Type`
-	CreatedTime time.Time     `CreatedTime`
+	UserId      primitive.ObjectID `bson:"_id"`
+	Email       string             `Email`
+	Token       string             `Token`
+	Type        int                `Type`
+	CreatedTime time.Time          `CreatedTime`
 }

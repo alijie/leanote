@@ -1,9 +1,11 @@
 package binder
 
 import (
-	"github.com/leanote/leanote/app/info"
+	"leanote/app/info"
+
 	"github.com/revel/revel"
-	//	"github.com/leanote/leanote/app/controllers/api"
+
+	//	"leanote/app/controllers/api"
 	"fmt"
 	"reflect"
 	"strings"

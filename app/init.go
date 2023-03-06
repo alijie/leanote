@@ -3,24 +3,25 @@ package app
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/leanote/leanote/app/controllers"
-	"github.com/leanote/leanote/app/controllers/admin"
-	"github.com/leanote/leanote/app/controllers/api"
-	"github.com/leanote/leanote/app/controllers/member"
-	"github.com/leanote/leanote/app/db"
-	. "github.com/leanote/leanote/app/lea"
-	_ "github.com/leanote/leanote/app/lea/binder"
-	"github.com/leanote/leanote/app/lea/i18n"
-	"github.com/leanote/leanote/app/lea/route"
-	"github.com/leanote/leanote/app/service"
-	"github.com/revel/revel"
 	"html/template"
+	"leanote/app/controllers"
 	"math"
 	"net/url"
 	"reflect"
 	"strconv"
 	"strings"
+
+	"leanote/app/controllers/admin"
+	"leanote/app/controllers/api"
+	"leanote/app/controllers/member"
+	. "leanote/app/lea"
+	_ "leanote/app/lea/binder"
+	"leanote/app/lea/i18n"
+	"leanote/app/lea/route"
+	"leanote/app/service"
 	"time"
+
+	"github.com/revel/revel"
 )
 
 func init() {
@@ -420,7 +421,7 @@ func init() {
 	// init Email
 	revel.OnAppStart(func() {
 		// 数据库
-		db.Init("", "")
+		// db.Init()
 		// email配置
 		InitEmail()
 		InitVd()

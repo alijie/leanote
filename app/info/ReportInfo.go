@@ -1,19 +1,20 @@
 package info
 
 import (
-	"gopkg.in/mgo.v2/bson"
 	"time"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // 举报
 type Report struct {
-	ReportId bson.ObjectId `bson:"_id"`
-	NoteId   bson.ObjectId `NoteId`
+	ReportId primitive.ObjectID `bson:"_id"`
+	NoteId   primitive.ObjectID `NoteId`
 
-	UserId bson.ObjectId `UserId` // UserId回复ToUserId
-	Reason string        `Reason` // 评论内容
+	UserId primitive.ObjectID `UserId` // UserId回复ToUserId
+	Reason string             `Reason` // 评论内容
 
-	CommentId bson.ObjectId `CommendId,omitempty` // 对某条评论进行回复
+	CommentId primitive.ObjectID `CommendId,omitempty` // 对某条评论进行回复
 
 	CreatedTime time.Time `CreatedTime`
 }

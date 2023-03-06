@@ -2,16 +2,18 @@ package service
 
 import (
 	"fmt"
-	"github.com/leanote/leanote/app/db"
-	"github.com/leanote/leanote/app/info"
-	. "github.com/leanote/leanote/app/lea"
-	"github.com/revel/revel"
-	"gopkg.in/mgo.v2/bson"
+	"leanote/app/db"
+	"leanote/app/info"
+	. "leanote/app/lea"
 	"os"
 	"os/exec"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/revel/revel"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // 配置服务
@@ -43,7 +45,7 @@ func (this *ConfigService) InitGlobalConfigs() bool {
 	this.siteUrl, _ = revel.Config.String("site.url")
 
 	userInfo := userService.GetUserInfoByAny(this.adminUsername)
-	if userInfo.UserId == "" {
+	if userInfo.UserId.IsZero() {
 		return false
 	}
 	this.adminUserId = userInfo.UserId.Hex()
@@ -96,8 +98,8 @@ func (this *ConfigService) updateGlobalConfig(userId, key string, value interfac
 	// 判断是否存在
 	if _, ok := this.GlobalAllConfigs[key]; !ok {
 		// 需要添加
-		config := info.Config{ConfigId: bson.NewObjectId(),
-			UserId:      bson.ObjectIdHex(userId), // 没用
+		config := info.Config{ConfigId: primitive.NewObjectID(),
+			UserId:      db.ObjectIDFromHex(userId), // 没用
 			Key:         key,
 			IsArr:       isArr,
 			IsMap:       isMap,
@@ -142,7 +144,7 @@ func (this *ConfigService) updateGlobalConfig(userId, key string, value interfac
 			i["ValueStr"] = v
 			this.GlobalStringConfigs[key] = v
 		}
-		// return db.UpdateByQMap(db.Configs, bson.M{"UserId": bson.ObjectIdHex(userId), "Key": key}, i)
+		// return db.UpdateByQMap(db.Configs, bson.M{"UserId": db.ObjectIDFromHex(userId), "Key": key}, i)
 		return db.UpdateByQMap(db.Configs, bson.M{"Key": key}, i)
 	}
 }
@@ -191,7 +193,7 @@ func (this *ConfigService) IsOpenRegister() bool {
 	return this.GetGlobalStringConfig("openRegister") != ""
 }
 
-//-------
+// -------
 // 修改共享笔记的配置
 func (this *ConfigService) UpdateShareNoteConfig(registerSharedUserId string,
 	registerSharedNotebookPerms, registerSharedNotePerms []int,
@@ -212,7 +214,7 @@ func (this *ConfigService) UpdateShareNoteConfig(registerSharedUserId string,
 		return
 	} else {
 		user := userService.GetUserInfo(registerSharedUserId)
-		if user.UserId == "" {
+		if user.UserId.IsZero() {
 			ok = false
 			msg = "no such user: " + registerSharedUserId
 			return
@@ -231,7 +233,7 @@ func (this *ConfigService) UpdateShareNoteConfig(registerSharedUserId string,
 				continue
 			}
 			notebook := notebookService.GetNotebook(notebookId, registerSharedUserId)
-			if notebook.NotebookId == "" {
+			if notebook.NotebookId.IsZero() {
 				ok = false
 				msg = "The user has no such notebook: " + notebookId
 				return
@@ -256,7 +258,7 @@ func (this *ConfigService) UpdateShareNoteConfig(registerSharedUserId string,
 				continue
 			}
 			note := noteService.GetNote(noteId, registerSharedUserId)
-			if note.NoteId == "" {
+			if note.NoteId.IsZero() {
 				ok = false
 				msg = "The user has no such note: " + noteId
 				return
@@ -281,7 +283,7 @@ func (this *ConfigService) UpdateShareNoteConfig(registerSharedUserId string,
 				continue
 			}
 			note := noteService.GetNote(noteId, registerSharedUserId)
-			if note.NoteId == "" {
+			if note.NoteId.IsZero() {
 				ok = false
 				msg = "The user has no such note: " + noteId
 				return
@@ -367,7 +369,7 @@ func (this *ConfigService) Restore(createdTime string) (ok bool, msg string) {
 		return
 	}
 
-	// mongorestore -h localhost -d leanote --directoryperdb /home/user1/gopackage/src/github.com/leanote/leanote/mongodb_backup/leanote_install_data/
+	// mongorestore -h localhost -d leanote --directoryperdb /home/user1/gopackage/src/leanote/mongodb_backup/leanote_install_data/
 	binPath := configService.GetGlobalStringConfig("mongorestorePath")
 	config := revel.Config
 	dbname, _ := config.String("db.dbname")
@@ -462,7 +464,7 @@ func (this *ConfigService) GetBackup(createdTime string) (map[string]string, boo
 	return backup, true
 }
 
-//--------------
+// --------------
 // sub domain
 var defaultDomain string
 var schema = "http://"

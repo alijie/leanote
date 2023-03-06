@@ -1,13 +1,11 @@
 package info
 
-import (
-	"gopkg.in/mgo.v2/bson"
-)
+import "go.mongodb.org/mongo-driver/bson/primitive"
 
 // 建议
 type Suggestion struct {
-	Id         bson.ObjectId `bson:"_id"`
-	UserId     bson.ObjectId `UserId`
-	Addr       string        `Addr`
-	Suggestion string        `Suggestion`
+	Id         primitive.ObjectID `bson:"_id"`
+	UserId     primitive.ObjectID `UserId`
+	Addr       string             `Addr`
+	Suggestion string             `Suggestion`
 }

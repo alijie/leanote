@@ -2,10 +2,11 @@ package member
 
 import (
 	//	"github.com/revel/revel"
-	//	"gopkg.in/mgo.v2/bson"
+	//	"go.mongodb.org/mongo-driver/bson"
 	//	"encoding/json"
-	"github.com/leanote/leanote/app/controllers"
-	. "github.com/leanote/leanote/app/lea"
+	"leanote/app/controllers"
+	. "leanote/app/lea"
+
 	//	"io/ioutil"
 	//	"fmt"
 	//	"math"

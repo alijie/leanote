@@ -1,8 +1,9 @@
 package info
 
 import (
-	"gopkg.in/mgo.v2/bson"
 	"time"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // 第三方类型
@@ -12,13 +13,13 @@ const (
 )
 
 type User struct {
-	UserId      bson.ObjectId `bson:"_id,omitempty"` // 必须要设置bson:"_id" 不然mgo不会认为是主键
-	Email       string        `Email`                // 全是小写
-	Verified    bool          `Verified`             // Email是否已验证过?
-	Username    string        `Username`             // 不区分大小写, 全是小写
-	UsernameRaw string        `UsernameRaw`          // 可能有大小写
-	Pwd         string        `bson:"Pwd" json:"-"`
-	CreatedTime time.Time     `CreatedTime`
+	UserId      primitive.ObjectID `bson:"_id,omitempty"` // 必须要设置bson:"_id" 不然mgo不会认为是主键
+	Email       string             `Email`                // 全是小写
+	Verified    bool               `Verified`             // Email是否已验证过?
+	Username    string             `Username`             // 不区分大小写, 全是小写
+	UsernameRaw string             `UsernameRaw`          // 可能有大小写
+	Pwd         string             `bson:"Pwd" json:"-"`
+	CreatedTime time.Time          `CreatedTime`
 
 	Logo string `Logo` // 9-24
 	// 主题
@@ -37,11 +38,11 @@ type User struct {
 
 	// 用户的帐户类型
 
-	ImageNum   int           `bson:"ImageNum" json:"-"`   // 图片数量
-	ImageSize  int           `bson:"ImageSize" json:"-"`  // 图片大小
-	AttachNum  int           `bson:"AttachNum" json:"-"`  // 附件数量
-	AttachSize int           `bson:"AttachSize" json:"-"` // 附件大小
-	FromUserId bson.ObjectId `FromUserId,omitempty`       // 邀请的用户
+	ImageNum   int                `bson:"ImageNum" json:"-"`   // 图片数量
+	ImageSize  int                `bson:"ImageSize" json:"-"`  // 图片大小
+	AttachNum  int                `bson:"AttachNum" json:"-"`  // 附件数量
+	AttachSize int                `bson:"AttachSize" json:"-"` // 附件大小
+	FromUserId primitive.ObjectID `FromUserId,omitempty`       // 邀请的用户
 
 	AccountType      string    `bson:"AccountType" json:"-"`      // normal(为空), premium
 	AccountStartTime time.Time `bson:"AccountStartTime" json:"-"` // 开始日期
@@ -79,13 +80,13 @@ type UserAndBlogUrl struct {
 
 // 用户与博客信息结合, 公开
 type UserAndBlog struct {
-	UserId    bson.ObjectId `bson:"_id,omitempty"` // 必须要设置bson:"_id" 不然mgo不会认为是主键
-	Email     string        `Email`                // 全是小写
-	Username  string        `Username`             // 不区分大小写, 全是小写
-	Logo      string        `Logo`
-	BlogTitle string        `BlogTitle` // 博客标题
-	BlogLogo  string        `BlogLogo`  // 博客Logo
-	BlogUrl   string        `BlogUrl`   // 博客链接, 主页
+	UserId    primitive.ObjectID `bson:"_id,omitempty"` // 必须要设置bson:"_id" 不然mgo不会认为是主键
+	Email     string             `Email`                // 全是小写
+	Username  string             `Username`             // 不区分大小写, 全是小写
+	Logo      string             `Logo`
+	BlogTitle string             `BlogTitle` // 博客标题
+	BlogLogo  string             `BlogLogo`  // 博客Logo
+	BlogUrl   string             `BlogUrl`   // 博客链接, 主页
 
 	BlogUrls // 各个页面
 }

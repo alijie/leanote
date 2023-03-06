@@ -1,11 +1,12 @@
 package admin
 
 import (
-	"github.com/leanote/leanote/app/info"
-	. "github.com/leanote/leanote/app/lea"
-	"github.com/revel/revel"
+	"leanote/app/info"
+	. "leanote/app/lea"
 	"strconv"
 	"strings"
+
+	"github.com/revel/revel"
 )
 
 // admin 首页
@@ -50,7 +51,7 @@ func (c AdminEmail) DoDemo(demoUsername, demoPassword string) revel.Result {
 	if err != nil {
 		return c.RenderJSON(info.Re{Ok: false})
 	}
-	if userInfo.UserId == "" {
+	if userInfo.UserId.IsZero() {
 		re.Msg = "The User is Not Exists"
 		return c.RenderJSON(re)
 	}

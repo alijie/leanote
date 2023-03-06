@@ -2,14 +2,17 @@ package controllers
 
 import (
 	"github.com/revel/revel"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+
 	//	"encoding/json"
 	"fmt"
-	"github.com/leanote/leanote/app/info"
-	. "github.com/leanote/leanote/app/lea"
-	"github.com/leanote/leanote/app/lea/netutil"
-	"gopkg.in/mgo.v2/bson"
 	"io/ioutil"
 	"os"
+
+	"leanote/app/info"
+	. "leanote/app/lea"
+	"leanote/app/lea/netutil"
+
 	//	"strconv"
 	"strings"
 )
@@ -39,7 +42,7 @@ func (c File) PasteImage(noteId string) revel.Result {
 	if noteId != "" {
 		userId := c.GetUserId()
 		note := noteService.GetNoteById(noteId)
-		if note.UserId != "" {
+		if !note.UserId.IsZero() {
 			noteUserId := note.UserId.Hex()
 			if noteUserId != userId {
 				// 是否是有权限协作的
@@ -117,7 +120,6 @@ func (c File) uploadImage(from, albumId string) (re info.Re) {
 	// defer file.Close()
 
 	// data, err := ioutil.ReadAll(file)
-	
 
 	// 生成上传路径
 	newGuid := NewGuid()
@@ -197,7 +199,7 @@ func (c File) uploadImage(from, albumId string) (re info.Re) {
 		Path:  fileUrlPath,
 		Size:  filesize}
 
-	id := bson.NewObjectId()
+	id := primitive.NewObjectID()
 	fileInfo.FileId = id
 	fileId = id.Hex()
 
@@ -282,7 +284,7 @@ func (c File) CopyHttpImage(src string) revel.Result {
 		Path:  fileUrlPath + "/" + filename,
 		Size:  filesize}
 
-	id := bson.NewObjectId()
+	id := primitive.NewObjectID()
 	fileInfo.FileId = id
 
 	re.Id = id.Hex()

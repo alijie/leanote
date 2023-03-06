@@ -1,8 +1,9 @@
 package info
 
 import (
-	"gopkg.in/mgo.v2/bson"
 	"time"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // 只为blog, 不为note
@@ -35,11 +36,11 @@ type UserBlogStyle struct {
 
 // 每个用户一份博客设置信息
 type UserBlog struct {
-	UserId   bson.ObjectId `bson:"_id"` // 谁的
-	Logo     string        `Logo`
-	Title    string        `Title`    // 标题
-	SubTitle string        `SubTitle` // 副标题
-	AboutMe  string        `AboutMe`  // 关于我, 弃用
+	UserId   primitive.ObjectID `bson:"_id"` // 谁的
+	Logo     string             `Logo`
+	Title    string             `Title`    // 标题
+	SubTitle string             `SubTitle` // 副标题
+	AboutMe  string             `AboutMe`  // 关于我, 弃用
 
 	CanComment bool `CanComment` // 是否可以评论
 
@@ -49,8 +50,8 @@ type UserBlog struct {
 	Style string `Style` // 风格
 	Css   string `Css`   // 自定义css
 
-	ThemeId   bson.ObjectId `ThemeId,omitempty`         // 主题Id
-	ThemePath string        `bson:"ThemePath" json:"-"` // 不存值, 从Theme中获取, 相对路径 public/
+	ThemeId   primitive.ObjectID `ThemeId,omitempty`         // 主题Id
+	ThemePath string             `bson:"ThemePath" json:"-"` // 不存值, 从Theme中获取, 相对路径 public/
 
 	CateIds []string            `CateIds,omitempty` // 分类Id, 排序好的
 	Singles []map[string]string `Singles,omitempty` // 单页, 排序好的, map包含: ["Title"], ["SingleId"]
@@ -66,21 +67,21 @@ type UserBlog struct {
 
 // 博客统计信息
 type BlogStat struct {
-	NoteId     bson.ObjectId `bson:"_id,omitempty"`
-	ReadNum    int           `ReadNum,omitempty`    // 阅读次数 2014/9/28
-	LikeNum    int           `LikeNum,omitempty`    // 点赞次数 2014/9/28
-	CommentNum int           `CommentNum,omitempty` // 评论次数 2014/9/28
+	NoteId     primitive.ObjectID `bson:"_id,omitempty"`
+	ReadNum    int                `ReadNum,omitempty`    // 阅读次数 2014/9/28
+	LikeNum    int                `LikeNum,omitempty`    // 点赞次数 2014/9/28
+	CommentNum int                `CommentNum,omitempty` // 评论次数 2014/9/28
 }
 
 // 单页
 type BlogSingle struct {
-	SingleId    bson.ObjectId `bson:"_id,omitempty"`
-	UserId      bson.ObjectId `UserId`
-	Title       string        `Title`
-	UrlTitle    string        `UrlTitle` // 2014/11/11
-	Content     string        `Content`
-	UpdatedTime time.Time     `UpdatedTime`
-	CreatedTime time.Time     `CreatedTime`
+	SingleId    primitive.ObjectID `bson:"_id,omitempty"`
+	UserId      primitive.ObjectID `UserId`
+	Title       string             `Title`
+	UrlTitle    string             `UrlTitle` // 2014/11/11
+	Content     string             `Content`
+	UpdatedTime time.Time          `UpdatedTime`
+	CreatedTime time.Time          `CreatedTime`
 }
 
 //------------------------
@@ -88,22 +89,22 @@ type BlogSingle struct {
 
 // 点赞记录
 type BlogLike struct {
-	LikeId      bson.ObjectId `bson:"_id,omitempty"`
-	NoteId      bson.ObjectId `NoteId`
-	UserId      bson.ObjectId `UserId`
-	CreatedTime time.Time     `CreatedTime`
+	LikeId      primitive.ObjectID `bson:"_id,omitempty"`
+	NoteId      primitive.ObjectID `NoteId`
+	UserId      primitive.ObjectID `UserId`
+	CreatedTime time.Time          `CreatedTime`
 }
 
 // 评论
 type BlogComment struct {
-	CommentId bson.ObjectId `bson:"_id,omitempty"`
-	NoteId    bson.ObjectId `NoteId`
+	CommentId primitive.ObjectID `bson:"_id,omitempty"`
+	NoteId    primitive.ObjectID `NoteId`
 
-	UserId  bson.ObjectId `UserId`  // UserId回复ToUserId
-	Content string        `Content` // 评论内容
+	UserId  primitive.ObjectID `UserId`  // UserId回复ToUserId
+	Content string             `Content` // 评论内容
 
-	ToCommentId bson.ObjectId `ToCommendId,omitempty` // 对某条评论进行回复
-	ToUserId    bson.ObjectId `ToUserId,omitempty`    // 为空表示直接评论, 不回空表示回复某人
+	ToCommentId primitive.ObjectID `ToCommendId,omitempty` // 对某条评论进行回复
+	ToUserId    primitive.ObjectID `ToUserId,omitempty`    // 为空表示直接评论, 不回空表示回复某人
 
 	LikeNum     int      `LikeNum`     // 点赞次数, 评论也可以点赞
 	LikeUserIds []string `LikeUserIds` // 点赞的用户ids

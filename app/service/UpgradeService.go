@@ -1,11 +1,14 @@
 package service
 
 import (
-	"github.com/leanote/leanote/app/db"
-	"github.com/leanote/leanote/app/info"
-	. "github.com/leanote/leanote/app/lea"
-	"gopkg.in/mgo.v2/bson"
 	"time"
+
+	"leanote/app/db"
+	"leanote/app/info"
+	. "leanote/app/lea"
+
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type UpgradeService struct {
@@ -19,7 +22,7 @@ func (this *UpgradeService) UpgradeBlog() bool {
 	// PublicTime, RecommendTime = UpdatedTime
 	for _, note := range notes {
 		if note.IsBlog && note.PublicTime.Year() < 100 {
-			db.UpdateByIdAndUserIdMap2(db.Notes, note.NoteId, note.UserId, bson.M{"PublicTime": note.UpdatedTime, "RecommendTime": note.UpdatedTime})
+			db.UpdateByIdAndUserIdMap2(db.Notes, note.NoteId.Hex(), note.UserId.Hex(), bson.M{"PublicTime": note.UpdatedTime, "RecommendTime": note.UpdatedTime})
 			Log(note.NoteId.Hex())
 		}
 	}
@@ -66,7 +69,7 @@ func (this *UpgradeService) UpgradeBetaToBeta2(userId string) (ok bool, msg stri
 			Log("Time " + noteId)
 		}
 		data["UrlTitle"] = GetUrTitle(note.UserId.Hex(), note.Title, "note", noteId)
-		db.UpdateByIdAndUserIdMap2(db.Notes, note.NoteId, note.UserId, data)
+		db.UpdateByIdAndUserIdMap2(db.Notes, note.NoteId.Hex(), note.UserId.Hex(), data)
 		Log(noteId)
 	}
 
@@ -78,7 +81,7 @@ func (this *UpgradeService) UpgradeBetaToBeta2(userId string) (ok bool, msg stri
 		notebookId := notebook.NotebookId.Hex()
 		data := bson.M{}
 		data["UrlTitle"] = GetUrTitle(notebook.UserId.Hex(), notebook.Title, "notebook", notebookId)
-		db.UpdateByIdAndUserIdMap2(db.Notebooks, notebook.NotebookId, notebook.UserId, data)
+		db.UpdateByIdAndUserIdMap2(db.Notebooks, notebook.NotebookId.Hex(), notebook.UserId.Hex(), data)
 		Log(notebookId)
 	}
 
@@ -94,7 +97,10 @@ func (this *UpgradeService) UpgradeBetaToBeta2(userId string) (ok bool, msg stri
 	*/
 
 	// 删除索引
-	db.ShareNotes.DropIndex("UserId", "ToUserId", "NoteId")
+	db.DropIndex(db.ShareNotes, "UserId")
+	db.DropIndex(db.ShareNotes, "ToUserId")
+	db.DropIndex(db.ShareNotes, "NoteId")
+
 	ok = true
 	msg = "success"
 	configService.UpdateGlobalStringConfig(userId, "UpgradeBetaToBeta2", "1")
@@ -115,7 +121,7 @@ func (this *UpgradeService) moveTag() {
 		if tagTitles != nil && len(tagTitles) > 0 {
 			for _, tagTitle := range tagTitles {
 				noteTag := info.NoteTag{}
-				noteTag.TagId = bson.NewObjectId()
+				noteTag.TagId = primitive.NewObjectID()
 				noteTag.Count = 1
 				noteTag.Tag = tagTitle
 				noteTag.UserId = eachTag.UserId

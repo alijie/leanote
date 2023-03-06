@@ -2,12 +2,15 @@ package api
 
 import (
 	"github.com/revel/revel"
-	"gopkg.in/mgo.v2/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+
 	//	"encoding/json"
-	"github.com/leanote/leanote/app/controllers"
-	"github.com/leanote/leanote/app/info"
-	. "github.com/leanote/leanote/app/lea"
+	"leanote/app/controllers"
+	"leanote/app/db"
+	"leanote/app/info"
+	. "leanote/app/lea"
 	"os"
+
 	//	"fmt"
 	"io/ioutil"
 	//	"fmt"
@@ -106,11 +109,11 @@ func (c ApiBaseContrller) uploadAttach(name string, noteId string) (ok bool, msg
 		fileType = strings.ToLower(ext[1:])
 	}
 	filesize := GetFilesize(toPath)
-	fileInfo := info.Attach{AttachId: bson.NewObjectId(),
+	fileInfo := info.Attach{AttachId: primitive.NewObjectID(),
 		Name:         filename,
 		Title:        handel.Filename,
-		NoteId:       bson.ObjectIdHex(noteId),
-		UploadUserId: bson.ObjectIdHex(userId),
+		NoteId:       db.ObjectIDFromHex(noteId),
+		UploadUserId: db.ObjectIDFromHex(userId),
 		Path:         filePath + "/" + filename,
 		Type:         fileType,
 		Size:         filesize}
@@ -190,7 +193,7 @@ func (c ApiBaseContrller) upload(name string, noteId string, isAttach bool) (ok 
 	fileUrlPath += "/" + filename
 
 	// File
-	fileInfo := info.File{FileId: bson.NewObjectId(),
+	fileInfo := info.File{FileId: primitive.NewObjectID(),
 		Name:  filename,
 		Title: handel.Filename,
 		Path:  fileUrlPath,

@@ -3,10 +3,10 @@ package api
 import (
 	"github.com/revel/revel"
 	//	"encoding/json"
-	//	. "github.com/leanote/leanote/app/lea"
-	//	"gopkg.in/mgo.v2/bson"
-	//	"github.com/leanote/leanote/app/lea/netutil"
-	//	"github.com/leanote/leanote/app/info"
+	//	. "leanote/app/lea"
+	//	"go.mongodb.org/mongo-driver/bson"
+	//	"leanote/app/lea/netutil"
+	//	"leanote/app/info"
 	//	"io/ioutil"
 	"os"
 	//	"strconv"
@@ -87,7 +87,7 @@ func (c ApiFile) GetAttach(fileId string) revel.Result {
 // [OK]
 func (c ApiFile) GetAllAttachs(noteId string) revel.Result {
 	note := noteService.GetNoteById(noteId)
-	if note.NoteId == "" {
+	if note.NoteId.IsZero() {
 		return c.RenderText("")
 	}
 	// 得到文件列表

@@ -7,13 +7,14 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"fmt"
-	"github.com/PuerkitoBio/goquery"
-	"gopkg.in/mgo.v2/bson"
 	"io"
+	"leanote/app/db"
 	math_rand "math/rand"
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/PuerkitoBio/goquery"
 )
 
 // 字符串
@@ -322,16 +323,7 @@ func IsUsername(username string) bool {
 
 // 是否是ObjectId
 func IsObjectId(id string) (ok bool) {
-	defer func() { // 必须要先声明defer，否则不能捕获到panic异常
-		// 证明有错误发生
-		if err := recover(); err != nil {
-			ok = false
-		} else {
-			ok = true
-		}
-	}()
-	bson.ObjectIdHex(id)
-	return
+	return db.IsObjectId(id)
 }
 
 // 随机密码

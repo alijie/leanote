@@ -1,15 +1,16 @@
 package info
 
 import (
-	"gopkg.in/mgo.v2/bson"
 	"time"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // 主题, 每个用户有多个主题, 这里面有主题的配置信息
 // 模板, css, js, images, 都在路径Path下
 type Theme struct {
-	ThemeId   bson.ObjectId          `bson:"_id,omitempty"` // 必须要设置bson:"_id" 不然mgo不会认为是主键
-	UserId    bson.ObjectId          `UserId`
+	ThemeId   primitive.ObjectID     `bson:"_id,omitempty"` // 必须要设置bson:"_id" 不然mgo不会认为是主键
+	UserId    primitive.ObjectID     `UserId`
 	Name      string                 `Name`
 	Version   string                 `Version`
 	Author    string                 `Author`

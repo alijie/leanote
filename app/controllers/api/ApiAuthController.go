@@ -1,10 +1,11 @@
 package api
 
 import (
-	"github.com/leanote/leanote/app/info"
-	. "github.com/leanote/leanote/app/lea"
+	"leanote/app/info"
+	. "leanote/app/lea"
+
 	"github.com/revel/revel"
-	"gopkg.in/mgo.v2/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	//	"strconv"
 )
 
@@ -26,7 +27,7 @@ func (c ApiAuth) Login(email, pwd string) revel.Result {
 
 	userInfo, err := authService.Login(email, pwd)
 	if err == nil {
-		token := bson.NewObjectId().Hex()
+		token := primitive.NewObjectID().Hex()
 		sessionService.SetUserId(token, userInfo.UserId.Hex())
 		return c.RenderJSON(info.AuthOk{Ok: true, Token: token, UserId: userInfo.UserId, Email: userInfo.Email, Username: userInfo.Username})
 	} else {

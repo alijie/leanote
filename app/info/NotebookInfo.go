@@ -1,24 +1,25 @@
 package info
 
 import (
-	"gopkg.in/mgo.v2/bson"
 	"time"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // 在数据库中每个
 // 修改字段必须要在NotebookService中修改ParseAndSortNotebooks(没有匿名字段), 以后重构
 type Notebook struct {
-	NotebookId       bson.ObjectId `bson:"_id,omitempty"` // 必须要设置bson:"_id" 不然mgo不会认为是主键
-	UserId           bson.ObjectId `bson:"UserId"`
-	ParentNotebookId bson.ObjectId `bson:"ParentNotebookId,omitempty"` // 上级
-	Seq              int           `Seq`                               // 排序
-	Title            string        `Title`                             // 标题
-	UrlTitle         string        `UrlTitle`                          // Url标题 2014/11.11加
-	NumberNotes      int           `NumberNotes`                       // 笔记数
-	IsTrash          bool          `IsTrash,omitempty`                 // 是否是trash, 默认是false
-	IsBlog           bool          `IsBlog,omitempty`                  // 是否是Blog 2013/12/29 新加
-	CreatedTime      time.Time     `CreatedTime,omitempty`
-	UpdatedTime      time.Time     `UpdatedTime,omitempty`
+	NotebookId       primitive.ObjectID `bson:"_id,omitempty"` // 必须要设置bson:"_id" 不然mgo不会认为是主键
+	UserId           primitive.ObjectID `bson:"UserId"`
+	ParentNotebookId primitive.ObjectID `bson:"ParentNotebookId,omitempty"` // 上级
+	Seq              int                `Seq`                               // 排序
+	Title            string             `Title`                             // 标题
+	UrlTitle         string             `UrlTitle`                          // Url标题 2014/11.11加
+	NumberNotes      int                `NumberNotes`                       // 笔记数
+	IsTrash          bool               `IsTrash,omitempty`                 // 是否是trash, 默认是false
+	IsBlog           bool               `IsBlog,omitempty`                  // 是否是Blog 2013/12/29 新加
+	CreatedTime      time.Time          `CreatedTime,omitempty`
+	UpdatedTime      time.Time          `UpdatedTime,omitempty`
 
 	// 2015/1/15, 更新序号
 	Usn       int  `Usn` // UpdateSequenceNum

@@ -1,9 +1,10 @@
 package member
 
 import (
-	"github.com/leanote/leanote/app/info"
-	"github.com/leanote/leanote/app/service"
-	//	. "github.com/leanote/leanote/app/lea"
+	"leanote/app/info"
+	"leanote/app/service"
+
+	//	. "leanote/app/lea"
 	"github.com/revel/revel"
 	//	"strings"
 )
