@@ -3,12 +3,16 @@ package db
 import (
 	"context"
 	"fmt"
+	"github.com/revel/config"
+	"github.com/revel/revel"
 	"log"
+	"strings"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	. "leanote/app/lea"
 )
 
 var client *mongo.Client
@@ -19,9 +23,6 @@ var ObjectIDFromHex = func(hex string) primitive.ObjectID {
 		log.Fatal(err)
 	}
 	return objectID
-}
-var IsObjectId = func(id string) bool {
-	return primitive.IsValidObjectID(id)
 }
 
 // 各个表的Collection对象
@@ -66,8 +67,63 @@ var Themes *mongo.Collection
 var Sessions *mongo.Collection
 
 func init() {
-	initMongo("mongodb://localhost:11003", "leanote")
+	//revel.Init("dev","leanote","F:\\workspace\\golang\\goland\\leanote_git\\leanote\\target\\src")
+	url,dbname := getUrl("","")
+	initMongo(url, dbname)
 }
+
+// 初始化时连接数据库
+func getUrl(url, dbname string) (string, string) {
+	ok := true
+	var config *config.Context
+	if url == "" {
+		config = revel.Config
+		url, ok = config.String("db.url")
+		if !ok {
+			url, ok = config.String("db.urlEnv")
+			if ok {
+				Log("get db conf from urlEnv: " + url)
+			}
+		} else {
+			Log("get db conf from db.url: " + url)
+		}
+
+		if ok {
+			// get dbname from urlEnv
+			urls := strings.Split(url, "/")
+			dbname = urls[len(urls)-1]
+
+			if strings.Contains(dbname, "?") {
+				urls = strings.Split(dbname, "?")
+				dbname = urls[0]
+			}
+		}
+	}
+	if dbname == "" {
+		if config == nil {
+			config = revel.Config
+		}
+		dbname, _ = config.String("db.dbname")
+	}
+
+	// get db config from host, port, username, password
+	if !ok {
+		host, _ := revel.Config.String("db.host")
+		port, _ := revel.Config.String("db.port")
+		username, _ := revel.Config.String("db.username")
+		password, _ := revel.Config.String("db.password")
+		usernameAndPassword := username + ":" + password + "@"
+		if username == "" || password == "" {
+			usernameAndPassword = ""
+		}
+		url = "mongodb://" + usernameAndPassword + host + ":" + port + "/" + dbname
+	}
+	Log(url)
+	// [mongodb://][user:pass@]host1[:port1][,host2[:port2],...][/database][?options]
+	// mongodb://myuser:mypass@localhost:40001,otherhost:40001/mydb
+	return url,dbname
+}
+
 
 func initMongo(url, dbname string) {
 	// 不关闭 ?
@@ -140,11 +196,9 @@ func initMongo(url, dbname string) {
 }
 
 func close() {
-
 	if err := client.Disconnect(context.Background()); err != nil {
 		log.Fatal(err)
 	}
-
 }
 
 // common DAO
@@ -400,5 +454,6 @@ func CheckMongoSessionLost() {
 	if err != nil {
 		log.Println("Lost connection to db!")
 		// TODO 重连
+		client.StartSession()
 	}
 }

@@ -7,8 +7,8 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"fmt"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"io"
-	"leanote/app/db"
 	math_rand "math/rand"
 	"regexp"
 	"strings"
@@ -323,7 +323,7 @@ func IsUsername(username string) bool {
 
 // 是否是ObjectId
 func IsObjectId(id string) (ok bool) {
-	return db.IsObjectId(id)
+	return primitive.IsValidObjectID(id)
 }
 
 // 随机密码
