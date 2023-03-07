@@ -66,7 +66,7 @@ var BlogSingles *mongo.Collection
 var Themes *mongo.Collection
 var Sessions *mongo.Collection
 
-func init() {
+func Init() {
 	url, dbname := getUrl("", "")
 	initMongo(url, dbname)
 }

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html/template"
 	"leanote/app/controllers"
+	"leanote/app/db"
 	"math"
 	"net/url"
 	"reflect"
@@ -421,7 +422,7 @@ func init() {
 	// init Email
 	revel.OnAppStart(func() {
 		// 数据库
-		// db.Init()
+		db.Init()
 		// email配置
 		InitEmail()
 		InitVd()
