@@ -67,8 +67,7 @@ var Themes *mongo.Collection
 var Sessions *mongo.Collection
 
 func init() {
-	//revel.Init("dev","leanote","F:\\workspace\\golang\\goland\\leanote_git\\leanote\\target\\src")
-	url,dbname := getUrl("","")
+	url, dbname := getUrl("", "")
 	initMongo(url, dbname)
 }
 
@@ -121,9 +120,8 @@ func getUrl(url, dbname string) (string, string) {
 	Log(url)
 	// [mongodb://][user:pass@]host1[:port1][,host2[:port2],...][/database][?options]
 	// mongodb://myuser:mypass@localhost:40001,otherhost:40001/mydb
-	return url,dbname
+	return url, dbname
 }
-
 
 func initMongo(url, dbname string) {
 	// 不关闭 ?

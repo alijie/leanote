@@ -13,12 +13,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-
-func Test111(t *testing.T) {
-	a:= primitive.NilObjectID.Hex()
-	log.Printf("【%v】\n", a)
-}
-
 func TestGet(t *testing.T) {
 	type args struct {
 		collection *mongo.Collection
@@ -497,21 +491,19 @@ func Test_getUrl(t *testing.T) {
 		dbname string
 	}
 	tests := []struct {
-		name  string
-		args  args
+		name string
+		args args
 	}{
-		{ "nm",
-			 args{
-				//"mongodb://localhost:11003","leanote",
-			"","",
+		{"nm",
+			args{
+				"", "",
 			},
 		},
-
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, got1 := getUrl(tt.args.url, tt.args.dbname)
-			log.Printf("【%v,%v】",got ,got1)
+			log.Printf("【%v,%v】", got, got1)
 		})
 	}
 }
